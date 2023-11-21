@@ -44,6 +44,7 @@ fileInput.addEventListener('change', function(event) {
 
       const selectLabelElement = document.createElement('select');
       selectLabelElement.setAttribute('id', 'label-select');
+      selectLabelElement.setAttribute('class', "form-select mb-2" )
       const defaultLabelOption = document.createElement('option');
       defaultLabelOption.value = '';
       defaultLabelOption.textContent = 'Select a header for label';
@@ -53,6 +54,7 @@ fileInput.addEventListener('change', function(event) {
 
       const selectLatElement = document.createElement('select');
       selectLatElement.setAttribute('id', 'lat-select');
+      selectLatElement.setAttribute('class', "form-select mb-2" )
       const defaultLatOption = document.createElement('option');
       defaultLatOption.value = ''; // Set an empty value or any appropriate default value
       defaultLatOption.textContent = 'Select a header for latitude'; // Placeholder text
@@ -62,6 +64,7 @@ fileInput.addEventListener('change', function(event) {
 
       const selectLonElement = document.createElement('select');
       selectLonElement.setAttribute('id', 'lon-select');
+      selectLonElement.setAttribute('class', "form-select mb-2" )
       const defaultLonOption = document.createElement('option');
       defaultLonOption.value = ''; // Set an empty value or any appropriate default value
       defaultLonOption.textContent = 'Select a header for longitude'; // Placeholder text
@@ -82,6 +85,7 @@ fileInput.addEventListener('change', function(event) {
       columnsSelect.appendChild(selectLatElement)
       columnsSelect.appendChild(selectLonElement)
       iconSelect.style.display = 'block'
+      createMapBtn.style.display = 'block'
     })
     .catch(error => {
       console.error('Fetch error:', error);
@@ -119,7 +123,19 @@ createMapBtn.addEventListener('click', () => {
         })
           .then(data => {
             const htmlContent = data.map_html
+
             const blob = new Blob([htmlContent], { type: 'text/html' });
+
+            const embeddedContent = URL.createObjectURL(blob);
+
+            const iframe = document.createElement('iframe');
+            iframe.src = embeddedContent;
+            iframe.style.width = '100%';
+            iframe.style.height = '500px';
+
+            const container = document.getElementById('map-container');
+            container.appendChild(iframe);
+
             const downloadLink = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = downloadLink;
@@ -131,5 +147,3 @@ createMapBtn.addEventListener('click', () => {
     }
 
 })
-
-
