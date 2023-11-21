@@ -32,15 +32,19 @@ def get_map():
     icon = request.form['icon']
     color = request.form['color']
 
-    data = get_data_from_excel(file, label, lat, lon)
-    map_creator = MapCreator(data, icon, color)
+    marker_data = get_data_from_excel(file, label, lat, lon)
+    map_creator = MapCreator(marker_data, icon, color)
     map_creator.add_deepstate_layer()
     map_creator.add_region_layer()
     map_creator.add_points()
 
     map_html = map_creator.m.get_root().render()
 
-    return jsonify({'map_html': map_html})
+    return jsonify({
+        'map_html': map_html,
+        'marker_data': marker_data,
+        'map_center': map_creator.center
+    })
 
 
 @app.route('/api/get_headers/', methods=['POST'])
