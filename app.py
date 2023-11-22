@@ -35,7 +35,7 @@ def get_map():
     icon = request.form["icon"]
     color = request.form["color"]
     unique_labels = request.form["unique_labels"]
-    unique_labels = True if unique_labels == 'true' else False
+    unique_labels = True if unique_labels == "true" else False
 
     # getting data from excel file
     marker_data = get_data_from_excel(file, label, lat, lon, unique_labels)

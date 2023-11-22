@@ -7,7 +7,6 @@ def get_data_from_excel(file, label_name, lat_name, lon_name, unique_labels):
     unique_labels_list = []
 
     for index, row in data.iterrows():
-
         label = row[label_name]
         coords = (row[lat_name], row[lon_name])
         if unique_labels:

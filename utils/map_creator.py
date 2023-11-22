@@ -14,14 +14,17 @@ class MapCreator:
         self.m = folium.Map(
             location=self.center,
             prefer_canvas=True,
-
             zoom_start=7,
             tiles=None,
-            name='My Ukraine map'
+            name="My Ukraine map",
         )
-        folium.TileLayer(tiles='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-                         attr='Custom tiles',
-                         name='Map').add_to(self.m)
+        (
+            folium.TileLayer(
+                tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                attr="Custom tiles",
+                name="Map",
+            ).add_to(self.m)
+        )
 
     def add_deepstate_layer(self):
         url = "https://deepstatemap.live/api/history/1699478008/geojson"
