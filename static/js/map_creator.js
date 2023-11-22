@@ -2,7 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.querySelector('#xlsx_file');
   const columnsSelect = document.querySelector('#column_selectors');
   const iconSelect = document.querySelector('#icon_selectors');
+  const uniqueLabelsInput = document.querySelector('#uniqueLabel')
+  const uniqueLabelsContainer = document.querySelector('.form-check')
   const createMapBtn = document.querySelector('#create-map');
+  const downloadAsHTMLButton = document.querySelector('#download-map')
+  const downloadAsImageButton = document.querySelector('#download-image')
+  const refreshButton = document.querySelector('#refresh')
 
   fileInput.addEventListener('change', handleFileInputChange);
 
@@ -65,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     iconSelect.style.display = 'block';
     createMapBtn.style.display = 'block';
+    uniqueLabelsContainer.style.display = 'block';
+
   }
 
   function appendOptionsToSelect(selectElement, options, selectId) {
@@ -93,6 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const lon = getValue('#lon-select');
     const icon = getValue('#icon-select');
     const color = getValue('#color-select');
+
+    const uniqueLabels = uniqueLabelsInput.checked
+
     const selectedFile = fileInput.files[0];
 
     if (label && lat && lon && icon && color && selectedFile) {
@@ -103,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('icon', icon);
       formData.append('color', color);
       formData.append('file', selectedFile);
+      formData.append('unique_labels', uniqueLabels)
 
       fetch('/api/get_map/', {
         method: 'POST',
@@ -134,17 +145,81 @@ document.addEventListener('DOMContentLoaded', () => {
     const iframe = document.createElement('iframe');
     iframe.src = embeddedContent;
     iframe.style.width = '100%';
-    iframe.style.height = '500px';
+    iframe.style.height = '100%';
+
+    iframe.sandbox = 'allow-same-origin allow-scripts allow-popups allow-forms';
 
     const container = document.getElementById('map-container');
     container.appendChild(iframe);
+    enableDownloadButtons()
+    refreshButton.addEventListener('click', () => {
+      location.reload();
+    })
+    downloadAsHTMLButton.addEventListener('click', () => {
+      const downloadLink = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadLink;
+      link.download = 'map.html';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    })
+    downloadAsImageButton.addEventListener('click', () => {
+      html2canvas(iframe.contentDocument.querySelector('.folium-map'), {
+        useCORS: true,
+        ignoreElements: (element) => {
+          return element.classList.contains('leaflet-bar') || element.classList.contains('leaflet-control');
+        },
+      }).then(canvas => {
+        const imageData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = imageData;
+        link.download = 'map.png';
+        document.body.appendChild(link);
+        link.click(); // Simulate click to trigger download
+        document.body.removeChild(link);
+      });
 
-    const downloadLink = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = downloadLink;
-    link.download = 'map.html';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    });
+
   }
 });
+
+ function enableDownloadButtons() {
+    const downloadAsHTMLButton = document.getElementById("download-map");
+    const downloadAsImageButton = document.getElementById("download-image")
+    const refreshButton = document.getElementById("refresh")
+    const createMapButton = document.getElementById("create-map")
+    const openModalButton = document.getElementById('generate')
+
+    if (createMapButton)
+        createMapButton.disabled = true;
+        createMapButton.classList.remove("btn-primary");
+        createMapButton.classList.add("btn-secondary");
+    if (openModalButton)
+        openModalButton.disabled = true;
+        openModalButton.classList.remove("btn-primary");
+        openModalButton.classList.add("btn-secondary");
+    if (downloadAsHTMLButton) {
+        downloadAsHTMLButton.disabled = false;
+
+        downloadAsHTMLButton.classList.remove("btn-secondary");
+        downloadAsHTMLButton.classList.add("btn-success");
+
+    }
+    if (downloadAsImageButton) {
+        downloadAsImageButton.disabled = false;
+
+        downloadAsImageButton.classList.remove("btn-secondary");
+        downloadAsImageButton.classList.add("btn-danger");
+
+    }
+    if (refreshButton) {
+      refreshButton.disabled = false
+      refreshButton.classList.remove("btn-secondary");
+      refreshButton.classList.add("btn-primary");
+    }
+}
+
+
