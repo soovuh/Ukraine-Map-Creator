@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const createMapBtn = document.querySelector('#create-map');
   const downloadAsHTMLButton = document.querySelector('#download-map')
   const downloadAsImageButton = document.querySelector('#download-image')
+  const refreshButton = document.querySelector('#refresh')
 
   fileInput.addEventListener('change', handleFileInputChange);
 
@@ -146,9 +147,14 @@ document.addEventListener('DOMContentLoaded', () => {
     iframe.style.width = '100%';
     iframe.style.height = '100%';
 
+    iframe.sandbox = 'allow-same-origin allow-scripts allow-popups allow-forms';
+
     const container = document.getElementById('map-container');
     container.appendChild(iframe);
     enableDownloadButtons()
+    refreshButton.addEventListener('click', () => {
+      location.reload();
+    })
     downloadAsHTMLButton.addEventListener('click', () => {
       const downloadLink = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -159,37 +165,22 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.removeChild(link);
     })
     downloadAsImageButton.addEventListener('click', () => {
-      const mapElement = iframe.contentDocument.querySelector('.folium-map');
+      html2canvas(iframe.contentDocument.querySelector('.folium-map'), {
+        useCORS: true,
+        ignoreElements: (element) => {
+          return element.classList.contains('leaflet-bar') || element.classList.contains('leaflet-control');
+        },
+      }).then(canvas => {
+        const imageData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = imageData;
+        link.download = 'map.png';
+        document.body.appendChild(link);
+        link.click(); // Simulate click to trigger download
+        document.body.removeChild(link);
+      });
 
-      // Wait for iframe content to fully load
-      html2canvas(mapElement, {
-          useCORS: true,
-          ignoreElements: (element) => {
-            return element.classList.contains('leaflet-bar') || element.classList.contains('leaflet-control');
-          },
-        }).then(canvas => {
-          const imageData = canvas.toDataURL('image/png');
-          const link = document.createElement('a');
-          link.href = imageData;
-          link.download = 'map.png';
-          document.body.appendChild(link);
-          document.body.removeChild(link);
-        });
-        html2canvas(mapElement, {
-          useCORS: true,
-          ignoreElements: (element) => {
-            return element.classList.contains('leaflet-bar') || element.classList.contains('leaflet-control');
-          },
-        }).then(canvas => {
-          const imageData = canvas.toDataURL('image/png');
 
-          const link = document.createElement('a');
-          link.href = imageData;
-          link.download = 'map.png';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        });
     });
 
   }
@@ -198,6 +189,18 @@ document.addEventListener('DOMContentLoaded', () => {
  function enableDownloadButtons() {
     const downloadAsHTMLButton = document.getElementById("download-map");
     const downloadAsImageButton = document.getElementById("download-image")
+    const refreshButton = document.getElementById("refresh")
+    const createMapButton = document.getElementById("create-map")
+    const openModalButton = document.getElementById('generate')
+
+    if (createMapButton)
+        createMapButton.disabled = true;
+        createMapButton.classList.remove("btn-primary");
+        createMapButton.classList.add("btn-secondary");
+    if (openModalButton)
+        openModalButton.disabled = true;
+        openModalButton.classList.remove("btn-primary");
+        openModalButton.classList.add("btn-secondary");
     if (downloadAsHTMLButton) {
         downloadAsHTMLButton.disabled = false;
 
@@ -211,6 +214,11 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadAsImageButton.classList.remove("btn-secondary");
         downloadAsImageButton.classList.add("btn-danger");
 
+    }
+    if (refreshButton) {
+      refreshButton.disabled = false
+      refreshButton.classList.remove("btn-secondary");
+      refreshButton.classList.add("btn-primary");
     }
 }
 
