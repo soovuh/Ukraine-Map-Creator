@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const columnsSelect = document.querySelector('#column_selectors');
   const iconSelect = document.querySelector('#icon_selectors');
   const createMapBtn = document.querySelector('#create-map');
+  const downloadAsHTMLButton = document.querySelector('#download-map')
+  const downloadAsImageButton = document.querySelector('#download-image')
 
   fileInput.addEventListener('change', handleFileInputChange);
 
@@ -134,17 +136,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const iframe = document.createElement('iframe');
     iframe.src = embeddedContent;
     iframe.style.width = '100%';
-    iframe.style.height = '500px';
+    iframe.style.height = '100%';
 
     const container = document.getElementById('map-container');
     container.appendChild(iframe);
+    enableDownloadButtons()
+    downloadAsHTMLButton.addEventListener('click', () => {
+      const downloadLink = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadLink;
+      link.download = 'map.html';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    })
+    downloadAsImageButton.addEventListener('click', () => {
+      const mapElement = iframe.contentDocument.querySelector('.folium-map');
 
-    const downloadLink = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = downloadLink;
-    link.download = 'map.html';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Wait for iframe content to fully load
+      html2canvas(mapElement, {
+          useCORS: true,
+          ignoreElements: (element) => {
+            return element.classList.contains('leaflet-bar') || element.classList.contains('leaflet-control');
+          },
+        }).then(canvas => {
+          const imageData = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = imageData;
+          link.download = 'map.png';
+          document.body.appendChild(link);
+          document.body.removeChild(link);
+        });
+        html2canvas(mapElement, {
+          useCORS: true,
+          ignoreElements: (element) => {
+            return element.classList.contains('leaflet-bar') || element.classList.contains('leaflet-control');
+          },
+        }).then(canvas => {
+          const imageData = canvas.toDataURL('image/png');
+
+          const link = document.createElement('a');
+          link.href = imageData;
+          link.download = 'map.png';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+    });
+
   }
 });
+
+ function enableDownloadButtons() {
+    const downloadAsHTMLButton = document.getElementById("download-map");
+    const downloadAsImageButton = document.getElementById("download-image")
+    if (downloadAsHTMLButton) {
+        downloadAsHTMLButton.disabled = false;
+
+        downloadAsHTMLButton.classList.remove("btn-secondary");
+        downloadAsHTMLButton.classList.add("btn-success");
+
+    }
+    if (downloadAsImageButton) {
+        downloadAsImageButton.disabled = false;
+
+        downloadAsImageButton.classList.remove("btn-secondary");
+        downloadAsImageButton.classList.add("btn-danger");
+
+    }
+}
+
+

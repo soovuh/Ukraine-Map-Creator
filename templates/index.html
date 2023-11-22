@@ -6,22 +6,21 @@
     <title>Map Creator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.0/MarkerCluster.css" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.0/MarkerCluster.Default.css" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/3.0.0/Control.FullScreen.css" crossorigin="anonymous"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" crossorigin="anonymous"/>
 
     <style>
-        .center-content {
+        #map-container {
+            height: 75vh;
+        }
+        .buttons-container {
+            display: flex;
+            width: 100%;
+            justify-content: center;
             align-items: center;
-            height: 100%;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar sticky-top bg-dark navbar-expand-lg bg-body-tertiary mb-5" data-bs-theme="dark">
+    <nav class="navbar sticky-top bg-dark navbar-expand-lg bg-body-tertiary mb-3" data-bs-theme="dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('index') }}">Map Creator</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,51 +42,64 @@
       </div>
     </nav>
     <div class="container-fluid" id="main" style="min-height: 90vh">
-        <div class="row center-content">
-            <div class="col-4">
-                <input type="file" class="form-control mb-3" name="file" id="xlsx_file" placeholder="Choose XLSX file">
-                <div id="column_selectors" class="mb-3"></div>
-                <div id="icon_selectors" style="display: none" class="mb-3">
-                    <select id="icon-select" class="form-select mb-2">
-                        <option value="" disabled="">Select icon for markers</option>
-                        <option value="bread-slice">bread-slice</option>
-                        <option value="screwdriver-wrench">screwdriver-wrench</option>
-                        <option value="droplet">droplet</option>
-                        <option value="utensils">utensils</option>
-                    </select>
-                    <select id="color-select" class="form-select">
-                        <option value="" disabled="">Select color for markers</option>
-                        <option value="darkred">darkred</option>
-                        <option value="orange">orange</option>
-                        <option value="beige">beige</option>
-                        <option value="black">black</option>
-                        <option value="blue">blue</option>
-                        <option value="cadetblue">cadetblue</option>
-                        <option value="darkblue">darkblue</option>
-                        <option value="darkgreen">darkgreen</option>
-                        <option value="gray">gray</option>
-                        <option value="green">green</option>
-                        <option value="lightblue">lightblue</option>
-                        <option value="lightgray">lightgray</option>
-                        <option value="lightgreen">lightgreen</option>
-                        <option value="pink">pink</option>
-                        <option value="purple">purple</option>
-                        <option value="red">red</option>
-                    </select>
+        <div class="buttons-container">
+            <button class="btn btn-primary m-3" type="button" data-bs-toggle="modal" id="generate" data-bs-target="#downloadModal">Create Map</button>
+            <button type="button" class="btn btn-secondary m-3" id="download-map" disabled>Download as HTML</button>
+            <button type="button" class="btn btn-secondary m-3" id="download-image" disabled>Download as Image</button>
+        </div>
+        <div class="modal fade text-start" id="downloadModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true"  style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="myModalLabel">Create Table</h5>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="file" class="form-control mb-3" name="file" id="xlsx_file" placeholder="Choose XLSX file">
+                        <div id="column_selectors" class="mb-3"></div>
+                        <div id="icon_selectors" style="display: none" class="mb-3">
+                            <select id="icon-select" class="form-select mb-2">
+                                <option value="" disabled="">Select icon for markers</option>
+                                <option value="bread-slice">bread-slice</option>
+                                <option value="screwdriver-wrench">screwdriver-wrench</option>
+                                <option value="droplet">droplet</option>
+                                <option value="utensils">utensils</option>
+                            </select>
+                            <select id="color-select" class="form-select">
+                                <option value="" disabled="">Select color for markers</option>
+                                <option value="darkred">darkred</option>
+                                <option value="orange">orange</option>
+                                <option value="beige">beige</option>
+                                <option value="black">black</option>
+                                <option value="blue">blue</option>
+                                <option value="cadetblue">cadetblue</option>
+                                <option value="darkblue">darkblue</option>
+                                <option value="darkgreen">darkgreen</option>
+                                <option value="gray">gray</option>
+                                <option value="green">green</option>
+                                <option value="lightblue">lightblue</option>
+                                <option value="lightgray">lightgray</option>
+                                <option value="lightgreen">lightgreen</option>
+                                <option value="pink">pink</option>
+                                <option value="purple">purple</option>
+                                <option value="red">red</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary mx-sm-3" id="create-map" type="button" data-bs-dismiss="modal">Create Map</button>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn btn-primary" id="create-map" style="display: none">Create Map</button>
-            </div>
-            <div class="col-8" id="map-container">
-                <!-- Map rendering -->
             </div>
         </div>
-
+        <div id="map-container"></div>
     </div>
 
     <!-- CDN Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" integrity="sha512-uKQ39gEGiyUJl4AI6L+ekBdGKpGw4xJ55+xyJG7YFlJokPNYegn9KwQ3P8A7aFQAUtUsAQHep+d/lrGqrbPIDQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 
     <!-- Local JS -->
     <script src="{{ url_for('static', filename='js/map_creator.js') }}"></script>

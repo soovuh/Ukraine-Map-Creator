@@ -13,6 +13,8 @@ class MapCreator:
         self.center = self.average_coords()
         self.m = folium.Map(
             location=self.center,
+            prefer_canvas=True,
+
             zoom_start=7,
             tiles=None,
             name='My Ukraine map'
@@ -78,7 +80,7 @@ class MapCreator:
             ).add_to(markers_layer)
             label_html = (
                 f"<div style='text-align: center; color: black; font-weight: bold; transform: translate("
-                f"-50%, -300%); font-size: 1.1em;'>{text_label}</div>"
+                f"-50%, -300%); font-size: 1.3em;'>{text_label}</div>"
             )
             label = folium.Marker(
                 location=coords, icon=folium.DivIcon(icon_size=(0, 0), html=label_html)
