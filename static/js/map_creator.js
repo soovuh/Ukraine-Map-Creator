@@ -1,106 +1,98 @@
-const fileInput = document.querySelector('#xlsx_file');
-const columnsSelect = document.querySelector('#column_selectors')
-const iconSelect = document.querySelector('#icon_selectors')
-const createMapBtn = document.querySelector('#create-map')
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.querySelector('#xlsx_file');
+  const columnsSelect = document.querySelector('#column_selectors');
+  const iconSelect = document.querySelector('#icon_selectors');
+  const createMapBtn = document.querySelector('#create-map');
 
-fileInput.addEventListener('change', function(event) {
-  const selectedFile = event.target.files[0];
-  if (selectedFile) {
+  fileInput.addEventListener('change', handleFileInputChange);
+
+  createMapBtn.addEventListener('click', handleCreateMapClick);
+
+  function handleFileInputChange(event) {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      fetchData(selectedFile);
+    }
+  }
+
+  function fetchData(selectedFile) {
     const formData = new FormData();
-    formData.append('file', selectedFile); // Append the file to the FormData object
+    formData.append('file', selectedFile);
 
     fetch('/api/get_headers/', {
       method: 'POST',
       body: formData
     })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      }
-      throw new Error('Network response was not ok.');
-    })
-    .then(data => {
-      const headers = data.headers
-      const headerLabelOptions = []
-      const headerLatOptions = []
-      const headerLonOptions = []
-      headers.forEach(header => {
-        // Create separate option elements for each select
-        const headerLabelOption = document.createElement('option');
-        headerLabelOption.value = header;
-        headerLabelOption.textContent = header;
-        headerLabelOptions.push(headerLabelOption);
-
-        const headerLatOption = document.createElement('option');
-        headerLatOption.value = header;
-        headerLatOption.textContent = header;
-        headerLatOptions.push(headerLatOption);
-
-        const headerLonOption = document.createElement('option');
-        headerLonOption.value = header;
-        headerLonOption.textContent = header;
-        headerLonOptions.push(headerLonOption);
-      });
-
-      const selectLabelElement = document.createElement('select');
-      selectLabelElement.setAttribute('id', 'label-select');
-      selectLabelElement.setAttribute('class', "form-select mb-2" )
-      const defaultLabelOption = document.createElement('option');
-      defaultLabelOption.value = '';
-      defaultLabelOption.textContent = 'Select a header for label';
-      defaultLabelOption.disabled = true;
-      defaultLabelOption.selected = true;
-      selectLabelElement.appendChild(defaultLabelOption);
-
-      const selectLatElement = document.createElement('select');
-      selectLatElement.setAttribute('id', 'lat-select');
-      selectLatElement.setAttribute('class', "form-select mb-2" )
-      const defaultLatOption = document.createElement('option');
-      defaultLatOption.value = ''; // Set an empty value or any appropriate default value
-      defaultLatOption.textContent = 'Select a header for latitude'; // Placeholder text
-      defaultLatOption.disabled = true; // Optionally, disable this option
-      defaultLatOption.selected = true; // Optionally, set this as the default selected option
-      selectLatElement.appendChild(defaultLatOption);
-
-      const selectLonElement = document.createElement('select');
-      selectLonElement.setAttribute('id', 'lon-select');
-      selectLonElement.setAttribute('class', "form-select mb-2" )
-      const defaultLonOption = document.createElement('option');
-      defaultLonOption.value = ''; // Set an empty value or any appropriate default value
-      defaultLonOption.textContent = 'Select a header for longitude'; // Placeholder text
-      defaultLonOption.disabled = true; // Optionally, disable this option
-      defaultLonOption.selected = true;
-      selectLonElement.appendChild(defaultLonOption);
-
-      headerLabelOptions.forEach(option => {
-        selectLabelElement.appendChild(option);
-      });
-      headerLatOptions.forEach(option => {
-        selectLatElement.appendChild(option);
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Network response was not ok.');
       })
-      headerLonOptions.forEach(option => {
-        selectLonElement.appendChild(option);
+      .then(data => {
+        createSelectOptions(data.headers);
       })
-      columnsSelect.appendChild(selectLabelElement)
-      columnsSelect.appendChild(selectLatElement)
-      columnsSelect.appendChild(selectLonElement)
-      iconSelect.style.display = 'block'
-      createMapBtn.style.display = 'block'
-    })
-    .catch(error => {
-      console.error('Fetch error:', error);
-    });
+      .catch(error => {
+        console.error('Fetch error:', error);
+      });
   }
-});
 
-createMapBtn.addEventListener('click', () => {
-    const label = document.querySelector('#label-select').value
-    const lat = document.querySelector('#lat-select').value
-    const lon = document.querySelector('#lon-select').value
-    const icon = document.querySelector('#icon-select').value
-    const color = document.querySelector('#color-select').value
+  function createSelectOptions(headers) {
+    const headerLabelOptions = [];
+    const headerLatOptions = [];
+    const headerLonOptions = [];
 
-    const fileInput = document.querySelector('#xlsx_file');
+    headers.forEach(header => {
+      const createOption = text => {
+        const option = document.createElement('option');
+        option.value = text;
+        option.textContent = text;
+        return option;
+      };
+
+      const headerLabelOption = createOption(header);
+      const headerLatOption = createOption(header);
+      const headerLonOption = createOption(header);
+
+      headerLabelOptions.push(headerLabelOption);
+      headerLatOptions.push(headerLatOption);
+      headerLonOptions.push(headerLonOption);
+    });
+
+    appendOptionsToSelect(columnsSelect, headerLabelOptions, 'label-select');
+    appendOptionsToSelect(columnsSelect, headerLatOptions, 'lat-select');
+    appendOptionsToSelect(columnsSelect, headerLonOptions, 'lon-select');
+
+    iconSelect.style.display = 'block';
+    createMapBtn.style.display = 'block';
+  }
+
+  function appendOptionsToSelect(selectElement, options, selectId) {
+    const select = document.createElement('select');
+    select.setAttribute('id', selectId);
+    select.setAttribute('class', 'form-select mb-2');
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = `Select a header for ${selectId === 'label-select' ? 'label' : selectId === 'lat-select' ? 'latitude' : 'longitude'}`;
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+
+    select.appendChild(defaultOption);
+
+    options.forEach(option => {
+      select.appendChild(option);
+    });
+
+    selectElement.appendChild(select);
+  }
+
+  function handleCreateMapClick() {
+    const label = getValue('#label-select');
+    const lat = getValue('#lat-select');
+    const lon = getValue('#lon-select');
+    const icon = getValue('#icon-select');
+    const color = getValue('#color-select');
     const selectedFile = fileInput.files[0];
 
     if (label && lat && lon && icon && color && selectedFile) {
@@ -115,35 +107,44 @@ createMapBtn.addEventListener('click', () => {
       fetch('/api/get_map/', {
         method: 'POST',
         body: formData
-      }).then(response => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error('Network response was not ok.');
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error('Network response was not ok.');
         })
-          .then(data => {
-            const htmlContent = data.map_html
-
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-
-            const embeddedContent = URL.createObjectURL(blob);
-
-            const iframe = document.createElement('iframe');
-            iframe.src = embeddedContent;
-            iframe.style.width = '100%';
-            iframe.style.height = '500px';
-
-            const container = document.getElementById('map-container');
-            container.appendChild(iframe);
-
-            const downloadLink = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = downloadLink;
-            link.download = 'map.html'; // Specify the filename here
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          })
+        .then(data => {
+          displayMap(data.map_html);
+        })
+        .catch(error => {
+          console.error('Fetch error:', error);
+        });
     }
+  }
 
-})
+  function getValue(selector) {
+    return document.querySelector(selector).value;
+  }
+
+  function displayMap(htmlContent) {
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const embeddedContent = URL.createObjectURL(blob);
+
+    const iframe = document.createElement('iframe');
+    iframe.src = embeddedContent;
+    iframe.style.width = '100%';
+    iframe.style.height = '500px';
+
+    const container = document.getElementById('map-container');
+    container.appendChild(iframe);
+
+    const downloadLink = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadLink;
+    link.download = 'map.html';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+});

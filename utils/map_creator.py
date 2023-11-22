@@ -1,7 +1,7 @@
 import folium
 import requests
 import json
-
+from folium import plugins
 
 class MapCreator:
     def __init__(self, data, icon, color):
@@ -61,6 +61,14 @@ class MapCreator:
                           f"-50%, -300%); font-size: 1.1em;'>{text_label}</div>")
             label = folium.Marker(location=coords, icon=folium.DivIcon(icon_size=(0, 0), html=label_html))
             label.add_to(self.m)
+
+    def add_fullscreen_btn(self):
+        plugins.Fullscreen(
+            position='bottomright',
+            title='Expand me',
+            title_cancel='Exit me',
+            force_separate_button=True
+        ).add_to(self.m)
 
     def average_coords(self):
         sum_lat = 0
