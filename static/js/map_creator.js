@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.querySelector('#xlsx_file');
   const columnsSelect = document.querySelector('#column_selectors');
   const iconSelect = document.querySelector('#icon_selectors');
+  const uniqueLabelsInput = document.querySelector('#uniqueLabel')
+  const uniqueLabelsContainer = document.querySelector('.form-check')
   const createMapBtn = document.querySelector('#create-map');
   const downloadAsHTMLButton = document.querySelector('#download-map')
   const downloadAsImageButton = document.querySelector('#download-image')
@@ -67,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     iconSelect.style.display = 'block';
     createMapBtn.style.display = 'block';
+    uniqueLabelsContainer.style.display = 'block';
+
   }
 
   function appendOptionsToSelect(selectElement, options, selectId) {
@@ -95,6 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const lon = getValue('#lon-select');
     const icon = getValue('#icon-select');
     const color = getValue('#color-select');
+
+    const uniqueLabels = uniqueLabelsInput.checked
+
     const selectedFile = fileInput.files[0];
 
     if (label && lat && lon && icon && color && selectedFile) {
@@ -105,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('icon', icon);
       formData.append('color', color);
       formData.append('file', selectedFile);
+      formData.append('unique_labels', uniqueLabels)
 
       fetch('/api/get_map/', {
         method: 'POST',
