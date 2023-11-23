@@ -39,8 +39,7 @@ function fetchData(selectedFile) {
     })
     .then(data => {
       cleanModalWindow()
-      const createMapBtn = document.querySelector('#create-map');
-      createMapBtn.setAttribute('disabled', 'true');
+      disableModalBtns()
 
       if (data.headers) {
         createSelectOptions(data.headers);
@@ -106,11 +105,13 @@ function fetchData(selectedFile) {
         select.addEventListener('change', () => {
           const selects = columnSelect.querySelectorAll('select')
           const createMapBtn = document.querySelector('#create-map');
+          const addLayerBtn = document.querySelector('#add_layer')
           const allSelected = Array.from(selects).every(select => select.value !== '');
             if (allSelected) {
               createMapBtn.removeAttribute('disabled');
+              addLayerBtn.removeAttribute('disabled')
             } else {
-              createMapBtn.setAttribute('disabled', 'true');
+              disableModalBtns()
             }
         });
     })
@@ -294,3 +295,9 @@ function clearErrorModal() {
    errors.innerHTML = ''
 }
 
+function disableModalBtns() {
+  const createMapBtn = document.querySelector('#create-map');
+  const addLayerBtn = document.querySelector('#add_layer')
+  addLayerBtn.setAttribute('disabled', 'true');
+  createMapBtn.setAttribute('disabled', 'true');
+}
