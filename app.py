@@ -18,15 +18,15 @@ def index():
 def get_map():
     # Check for file
     if "file" not in request.files:
-        return "No file part", 400
+        return jsonify({"error": "No file part"}), 200
 
     file = request.files["file"]
 
     if file.filename == "":
-        return "No selected file", 400
+        return jsonify({"error": "No selected file"}), 200
 
     if ".xlsx" not in file.filename:
-        return "This not excel file!", 400
+        return jsonify({"error": "This not excel file!"}), 200
 
     # get data from request
     label = request.form["label"]
@@ -37,9 +37,10 @@ def get_map():
     unique_labels = request.form["unique_labels"]
     unique_labels = True if unique_labels == "true" else False
 
-    # getting data from excel file
+    # getting data from Excel file
     marker_data = get_data_from_excel(file, label, lat, lon, unique_labels)
-
+    if not marker_data:
+        return jsonify({"error": "No valid data"}), 200
     # create map and add layers to map
     map_creator = MapCreator(marker_data, icon, color)
     map_creator.add_deepstate_layer()
@@ -63,15 +64,15 @@ def get_map():
 def get_headers():
     # check file is valid
     if "file" not in request.files:
-        return "No file part", 400
+        return jsonify({"error": "No file part"}), 200
 
     file = request.files["file"]
 
     if file.filename == "":
-        return "No selected file", 400
+        return jsonify({"error": "No selected file"}), 200
 
     if ".xlsx" not in file.filename:
-        return "This not excel file!", 400
+        return jsonify({"error": "This not excel file!"}), 200
 
     # get headers from excel file
     headers = get_headers_from_excel(file)
