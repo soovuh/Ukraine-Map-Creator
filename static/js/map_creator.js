@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadAsHTMLButton = document.querySelector('#download-map')
   const downloadAsImageButton = document.querySelector('#download-image')
   const refreshButton = document.querySelector('#refresh')
+  const errorsModal = document.querySelector('#errors')
+
 
   fileInput.addEventListener('change', handleFileInputChange);
 
@@ -20,27 +22,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function fetchData(selectedFile) {
-    const formData = new FormData();
-    formData.append('file', selectedFile);
+function fetchData(selectedFile) {
+  const formData = new FormData();
+  formData.append('file', selectedFile);
 
-    fetch('/api/get_headers/', {
-      method: 'POST',
-      body: formData
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        }
+  fetch('/api/get_headers/', {
+    method: 'POST',
+    body: formData
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
         throw new Error('Network response was not ok.');
-      })
-      .then(data => {
+      }
+    })
+    .then(data => {
+      cleanModalWindow()
+      if (data.headers) {
         createSelectOptions(data.headers);
-      })
-      .catch(error => {
-        console.error('Fetch error:', error);
-      });
-  }
+      } else {
+        displayErrorModal(data.error)
+      }
+    })
+    .catch(error => {
+      console.error('Fetch error:', error);
+      displayErrorModal('Error fetching data. Please try again later.');
+    });
+}
+
 
   function createSelectOptions(headers) {
     const headerLabelOptions = [];
@@ -68,11 +78,42 @@ document.addEventListener('DOMContentLoaded', () => {
     appendOptionsToSelect(columnsSelect, headerLatOptions, 'lat-select');
     appendOptionsToSelect(columnsSelect, headerLonOptions, 'lon-select');
 
+    createListeners(columnsSelect)
+
     iconSelect.style.display = 'block';
     createMapBtn.style.display = 'block';
     uniqueLabelsContainer.style.display = 'block';
 
   }
+
+  function cleanModalWindow() {
+    const selectors = document.querySelector('#column_selectors')
+    const iconSelect = document.querySelector('#icon_selectors')
+    const errors = document.querySelector('#errors')
+    const uniqueLabelsContainer = document.querySelector('.form-check')
+    errors.innerHTML = ''
+    iconSelect.style.display = 'none'
+    selectors.innerHTML = ''
+    uniqueLabelsContainer.style.display = 'none';
+
+  }
+
+  function createListeners(columnSelect){
+    columnSelect.querySelectorAll('select').forEach(select => {
+        select.addEventListener('change', () => {
+          const selects = columnSelect.querySelectorAll('select')
+          const createMapBtn = document.querySelector('#create-map');
+          const allSelected = Array.from(selects).every(select => select.value !== '');
+            if (allSelected) {
+              createMapBtn.removeAttribute('disabled');
+            } else {
+              createMapBtn.setAttribute('disabled', 'true');
+            }
+        });
+    })
+
+  }
+
 
   function appendOptionsToSelect(selectElement, options, selectId) {
     const select = document.createElement('select');
@@ -121,12 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
       })
         .then(response => {
           if (response.ok) {
-            return response.json();
+            return response.json()
+          } else {
+            throw new Error('Network response was not ok.');
           }
-          throw new Error('Network response was not ok.');
         })
         .then(data => {
-          displayMap(data.map_html);
+          if(data.map_html) {
+            displayMap(data.map_html);
+          } else {
+            displayErrorModal(data.error)
+          }
         })
         .catch(error => {
           console.error('Fetch error:', error);
@@ -151,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const container = document.getElementById('map-container');
     container.appendChild(iframe);
-    enableDownloadButtons()
+    enableButtons()
     refreshButton.addEventListener('click', () => {
       location.reload();
     })
@@ -186,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
- function enableDownloadButtons() {
+ function enableButtons() {
     const downloadAsHTMLButton = document.getElementById("download-map");
     const downloadAsImageButton = document.getElementById("download-image")
     const refreshButton = document.getElementById("refresh")
@@ -222,4 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }
 
+
+function displayErrorModal(errorMessage) {
+   const error = document.createElement('div');
+   const errorsModal = document.querySelector('#errors')
+
+   error.innerHTML = errorMessage;
+   error.style.color = 'red'
+   error.style.fontSize = '0.7em'
+   error.classList.add('mb-2')
+
+   errorsModal.appendChild(error)
+}
 
