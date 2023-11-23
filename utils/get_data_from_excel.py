@@ -12,7 +12,6 @@ def get_data_from_excel(file, label_name, lat_name, lon_name, unique_labels):
         try:
             coords = (float(row[lat_name]), float(row[lon_name]))
         except Exception as e:
-            print(f'Error: {e}')
             continue
         if label == np.nan or np.nan in coords:
             continue

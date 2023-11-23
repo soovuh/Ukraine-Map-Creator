@@ -169,8 +169,13 @@ function fetchData(selectedFile) {
         })
         .then(data => {
           if(data.map_html) {
+            const myModalEl = document.getElementById('downloadModal');
+            const modal = bootstrap.Modal.getInstance(myModalEl)
+            modal.hide()
+
             displayMap(data.map_html);
           } else {
+            clearErrorModal()
             displayErrorModal(data.error)
           }
         })
@@ -279,5 +284,10 @@ function displayErrorModal(errorMessage) {
    error.classList.add('mb-2')
 
    errorsModal.appendChild(error)
+}
+
+function clearErrorModal() {
+   const errors = document.querySelector('#errors')
+   errors.innerHTML = ''
 }
 
