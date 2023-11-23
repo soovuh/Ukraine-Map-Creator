@@ -39,6 +39,9 @@ function fetchData(selectedFile) {
     })
     .then(data => {
       cleanModalWindow()
+      const createMapBtn = document.querySelector('#create-map');
+      createMapBtn.setAttribute('disabled', 'true');
+
       if (data.headers) {
         createSelectOptions(data.headers);
       } else {
