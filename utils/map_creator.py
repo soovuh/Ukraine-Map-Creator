@@ -114,3 +114,7 @@ class MapCreator:
         avg_lon = sum_lon / len(self.data)
 
         return avg_lat, avg_lon
+
+    # Function for updating data if user have only places names in xlsx file
+    def get_coords_with_place(self):
+        pass

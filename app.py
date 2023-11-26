@@ -1,12 +1,29 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from flask import render_template, request, jsonify
+from datetime import datetime
+
 
 from utils.get_data_from_excel import get_headers_from_excel, get_data_from_excel
 from utils.map_creator import MapCreator
 
 # create Flask app instance
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+db = SQLAlchemy(app)
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50))
+    date_joined = db.Column(db.Date, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<User: {self.username}>'
+
+    # User.query.all() - for getting all users
 
 @app.route("/")
 def index():
@@ -79,5 +96,3 @@ def get_headers():
     return {"headers": headers}
 
 
-if __name__ == "__main__":
-    app.run()
