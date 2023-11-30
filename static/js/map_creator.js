@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadAsImageButton = document.querySelector('#download-image')
   const refreshButton = document.querySelector('#refresh')
   const errorsModal = document.querySelector('#errors')
+  const saveToProfileBtn = document.querySelector("#save")
 
 
   fileInput.addEventListener('change', handleFileInputChange);
@@ -105,11 +106,13 @@ function fetchData(selectedFile) {
         select.addEventListener('change', () => {
           const selects = columnSelect.querySelectorAll('select')
           const createMapBtn = document.querySelector('#create-map');
-          const addLayerBtn = document.querySelector('#add_layer')
+          const addLayerBtn = document.querySelector('#add_layer');
+
           const allSelected = Array.from(selects).every(select => select.value !== '');
             if (allSelected) {
               createMapBtn.removeAttribute('disabled');
-              addLayerBtn.removeAttribute('disabled')
+              addLayerBtn.removeAttribute('disabled');
+
             } else {
               disableModalBtns()
             }
@@ -235,8 +238,25 @@ function fetchData(selectedFile) {
         document.body.removeChild(link);
       });
 
-
     });
+    console.log(saveToProfileBtn)
+    if(saveToProfileBtn) {
+      saveToProfileBtn.addEventListener('click', () => {
+        fetch("/api/save/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({html_data: htmlContent})
+        })
+        .then(response => response.json())
+        .then(data => {
+          if(data.success)
+          alert('Successfully saved map to profile!');
+        })
+        .catch((err) => alert("Oops! Something goes wrong!"))
+      })
+    }
 
   }
 });
@@ -247,6 +267,7 @@ function fetchData(selectedFile) {
     const refreshButton = document.getElementById("refresh")
     const createMapButton = document.getElementById("create-map")
     const openModalButton = document.getElementById('generate')
+    const saveToProfileBtn = document.getElementById('save')
 
     if (createMapButton)
         createMapButton.disabled = true;
@@ -269,6 +290,13 @@ function fetchData(selectedFile) {
         downloadAsImageButton.classList.remove("btn-secondary");
         downloadAsImageButton.classList.add("btn-danger");
 
+    }
+    if(saveToProfileBtn) {
+      saveToProfileBtn.disabled = false
+
+      saveToProfileBtn.classList.remove("btn-secondary");
+      saveToProfileBtn.classList.add("btn-info");
+      saveToProfileBtn.style.color = '#fff'
     }
     if (refreshButton) {
       refreshButton.disabled = false

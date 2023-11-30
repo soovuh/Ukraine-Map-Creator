@@ -195,3 +195,14 @@ def get_headers():
     # get headers from excel file
     headers = get_headers_from_excel(file)
     return {"headers": headers}
+
+@app.route("/api/save/", methods={"POST"})
+@login_required
+def save():
+    id = current_user.id
+    data = request.get_json()
+    html_data = data["html_data"]
+    new_map = Map(user_id=id, html=html_data)
+    db.session.add(new_map)
+    db.session.commit()
+    return {"success": "success"}
