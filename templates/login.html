@@ -6,6 +6,15 @@
     <title>Map Creator | Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+      #main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Adjust this to control the height of the form */
+    }
+  </style>
 </head>
 <body>
     <nav class="navbar sticky-top bg-dark navbar-expand-lg bg-body-tertiary mb-3" data-bs-theme="dark">
@@ -38,15 +47,24 @@
         </div>
       </div>
     </nav>
-    <div class="container-fluid" id="main" style="min-height: 90vh">
-            <form method="POST" action="">
-                {{ form.hidden_tag() }}
-                {{ form.username }}
-                {{ form.password }}
-                {{ form.submit }}
-            </form>
-    <span>Don`t have an account?</span>
-      <a href="{{url_for('register')}}"> Register</a>
+    <div style="width: 100%; height: 85vh; align-items: center; justify-content: center; display: flex">
+        <form method="POST" action="" class="border p-4 m-5" style="max-width: 900px; min-width: 400px; border-radius: 20px;">
+            {{ form.hidden_tag() }}
+            <h2 "w-100 mb-3" style="text-align: center">Login</h2>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                {{ form.username(class="form-control", id="username") }}
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                {{ form.password(class="form-control", id="password") }}
+            </div>
+            <div class="mb-3">
+                {{ form.submit(class="btn btn-primary w-100", value="Login") }}
+            </div>
+            <p style="text-align: center">Don't have an account? <a style="text-decoration: none;" href="{{url_for('register')}}">Register</a></p>
+
+        </form>
     </div>
 
     <!-- CDN Scripts -->
