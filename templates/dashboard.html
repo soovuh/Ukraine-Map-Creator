@@ -39,7 +39,9 @@
       </div>
     </nav>
     <div class="container-fluid" id="main" style="min-height: 90vh">
-        DASHBOARD PAGE
+        {% for map in maps %}
+          <span> {{ map.id, map.user_id, map.date_created }}
+        {% endfor %}
     </div>
 
     <!-- CDN Scripts -->
