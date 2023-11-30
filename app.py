@@ -15,6 +15,8 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from datetime import datetime
 from flask_bcrypt import Bcrypt
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 
 from utils.get_data_from_excel import get_headers_from_excel, get_data_from_excel
@@ -28,6 +30,7 @@ app.config["SECRET_KEY"] = "1234567891011123142adjhbakdhajsjdhabjhcbakjsajhcb"
 
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
+admin = Admin(app)
 
 
 login_manager = LoginManager()
@@ -60,6 +63,10 @@ class Map(db.Model):
 
     def __repr__(self):
         return f"<Map: {self.id}>"
+
+
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Map, db.session))
 
 
 class RegisterForm(FlaskForm):
@@ -190,7 +197,7 @@ def get_map():
         {
             "map_html": map_html,
         }
-    )
+    ), 200
 
 
 @app.route("/api/get_headers/", methods=["POST"])
@@ -221,4 +228,9 @@ def save():
     new_map = Map(user_id=id, html=html_data)
     db.session.add(new_map)
     db.session.commit()
-    return {"success": "success"}
+    return jsonify({"success": "success"}), 200
+
+
+
+# run app command
+# flask --app app run --debug
