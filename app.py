@@ -1,19 +1,13 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship
 from flask import render_template, jsonify, redirect, url_for, request
 from flask_login import (
-    UserMixin,
     login_user,
     LoginManager,
     login_required,
     logout_user,
     current_user,
 )
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
-from datetime import datetime
+
 from flask_bcrypt import Bcrypt
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
@@ -22,14 +16,19 @@ from flask_admin.contrib.sqla import ModelView
 from utils.get_data_from_excel import get_headers_from_excel, get_data_from_excel
 from utils.map_creator import MapCreator
 
+
+from models import db, User, Map
+from forms import LoginForm, RegisterForm
+
 # create Flask app instance
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "1234567891011123142adjhbakdhajsjdhabjhcbakjsajhcb"
 
+
+db.init_app(app)
 bcrypt = Bcrypt(app)
-db = SQLAlchemy(app)
 admin = Admin(app)
 
 
@@ -38,70 +37,13 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(80))
-    date_joined = db.Column(db.Date, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f"<User: {self.username}>"
-
-
-class Map(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    html = db.Column(db.Text)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    date_created = db.Column(db.Date, default=datetime.utcnow)
-
-    user = relationship("User")
-
-    def __repr__(self):
-        return f"<Map: {self.id}>"
-
-
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Map, db.session))
 
 
-class RegisterForm(FlaskForm):
-    username = StringField(
-        validators=[InputRequired(), Length(min=4, max=20)],
-        render_kw={"placeholder": "Username"},
-    )
-
-    password = PasswordField(
-        validators=[InputRequired(), Length(min=8, max=20)],
-        render_kw={"placeholder": "Password"},
-    )
-
-    submit = SubmitField("Register")
-
-    def validate_username(self, username):
-        existing_user_username = User.query.filter_by(username=username.data).first()
-        if existing_user_username:
-            raise ValidationError(
-                "That username already exists. Please choose a different one."
-            )
-
-
-class LoginForm(FlaskForm):
-    username = StringField(
-        validators=[InputRequired(), Length(min=4, max=20)],
-        render_kw={"placeholder": "Username"},
-    )
-
-    password = PasswordField(
-        validators=[InputRequired(), Length(min=8, max=20)],
-        render_kw={"placeholder": "Password"},
-    )
-
-    submit = SubmitField("Login")
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @app.route("/")
