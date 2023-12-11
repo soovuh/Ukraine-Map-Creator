@@ -99,6 +99,7 @@ def dashboard():
 @app.route("/api/get_map/", methods=["POST"])
 def get_map():
     # Check for file
+    # Here i need to get list of layers with markers, not one values
     if "file" not in request.files:
         return jsonify({"error": "No file part"}), 200
 
@@ -111,23 +112,19 @@ def get_map():
         return jsonify({"error": "This not excel file!"}), 200
 
     # get data from request
-    label = request.form["label"]
-    lat = request.form["lat"]
-    lon = request.form["lon"]
-    icon = request.form["icon"]
-    color = request.form["color"]
-    unique_labels = request.form["unique_labels"]
-    unique_labels = True if unique_labels == "true" else False
+    layers = ?
 
-    # getting data from Excel file
-    marker_data = get_data_from_excel(file, label, lat, lon, unique_labels)
-    if not marker_data:
-        return jsonify({"error": "No valid data"}), 200
-    # create map and add layers to map
-    map_creator = MapCreator(marker_data, icon, color)
+    # need change to layers
+    
+    map_creator = MapCreator()
     map_creator.add_deepstate_layer()
     map_creator.add_region_layer()
-    map_creator.add_points()
+    for layer in layers:
+      layer["layer_data"] = get_data_from_excel(layer["file"], layer["label"], layer["lat"], layer["lon"], layer["unique_labels"])
+      if not layer["layer_data"]:
+        return jsonify({"error": "No valid data"}), 200
+      map_creator.add_points_layer(layer)
+    
     map_creator.add_fullscreen_btn()
     map_creator.add_layer_control()
 

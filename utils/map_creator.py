@@ -4,15 +4,10 @@ import json
 
 from folium import plugins
 
-
+# Here i need to change from 1 layer to more layers
 class MapCreator:
-    def __init__(self, data, icon, color):
-        self.data = data
-        self.icon = icon
-        self.color = color
-        self.center = self.average_coords()
+    def __init__(self):
         self.m = folium.Map(
-            location=self.center,
             prefer_canvas=True,
             zoom_start=7,
             tiles=None,
@@ -71,15 +66,15 @@ class MapCreator:
         region_layer = folium.FeatureGroup("Regions").add_to(self.m)
         geojson_layer.add_to(region_layer)
 
-    def add_points(self):
+    def add_points_layer(self, layer):
         markers_layer = folium.FeatureGroup("Markers").add_to(self.m)
-        for entry in self.data:
+        for entry in layer["data"]:
             text_label = entry["label"]
             coords = entry["coords"]
             folium.Marker(
                 location=coords,
                 popup=text_label,
-                icon=folium.Icon(icon=self.icon, prefix="fa", color=self.color),
+                icon=folium.Icon(icon=layer["icon"], prefix="fa", color=layer["color"]),
             ).add_to(markers_layer)
             label_html = (
                 f"<div style='text-align: center; color: black; font-weight: bold; transform: translate("
@@ -100,21 +95,3 @@ class MapCreator:
 
     def add_layer_control(self):
         folium.LayerControl().add_to(self.m)
-
-    def average_coords(self):
-        sum_lat = 0
-        sum_lon = 0
-
-        for entry in self.data:
-            coords = entry["coords"]
-            sum_lat += coords[0]
-            sum_lon += coords[1]
-
-        avg_lat = sum_lat / len(self.data)
-        avg_lon = sum_lon / len(self.data)
-
-        return avg_lat, avg_lon
-
-    # Function for updating data if user have only places names in xlsx file
-    def get_coords_with_place(self):
-        pass
