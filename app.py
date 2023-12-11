@@ -173,6 +173,27 @@ def save():
     return jsonify({"success": "success"}), 200
 
 
+@app.route('/api/get_html_map/<int:map_id>/')
+def get_html_map(map_id):
+    map_data = Map.query.get(map_id)
 
+    if map_data:
+        return jsonify({"html": map_data.html, "name": f"{map_data.id}_{map_data.date_created}"})
+    else:
+        return jsonify({"error": "Map not found"}), 404
+
+
+@app.route('/api/delete_map/<int:map_id>/')
+def delete_map(map_id):
+    map_data = Map.query.get(map_id)
+
+    if map_data:
+        db.session.delete(map_data)
+        db.session.commit()
+        return jsonify({"message": "Map deleted successfully"})
+    else:
+        return jsonify({"error": "Map not found"}), 404
+    
+    
 # run app command
 # flask --app app run --debug

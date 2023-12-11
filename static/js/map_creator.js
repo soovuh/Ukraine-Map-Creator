@@ -232,7 +232,7 @@ function fetchData(selectedFile) {
         const imageData = canvas.toDataURL('image/png');
         const link = document.createElement('a');
         link.href = imageData;
-        link.download = 'map.png';
+        link.download = 'map-snapshot.png';
         document.body.appendChild(link);
         link.click(); // Simulate click to trigger download
         document.body.removeChild(link);
