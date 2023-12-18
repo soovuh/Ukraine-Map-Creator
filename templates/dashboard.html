@@ -39,6 +39,7 @@
       </div>
     </nav>
     <div class="container-fluid" id="main" style="min-height: 90vh">
+      {% if maps %}
       {% for map in maps %}
       <div class="accordion" id="accordion{{ map.id }}">
         <div class="accordion-item">
@@ -58,6 +59,11 @@
         </div>
       </div>
     {% endfor %}
+    {% else %}
+    <div style="display: flex; min-width: 100%; min-height: 90vh; justify-content: center; align-items: center;">
+      <h2>This is where your saved maps will be!</h2>
+    </div>
+    {% endif %}
     </div>
 
     <!-- CDN Scripts -->
