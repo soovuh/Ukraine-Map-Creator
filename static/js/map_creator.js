@@ -106,13 +106,10 @@ function fetchData(selectedFile) {
         select.addEventListener('change', () => {
           const selects = columnSelect.querySelectorAll('select')
           const createMapBtn = document.querySelector('#create-map');
-          const addLayerBtn = document.querySelector('#add_layer');
 
           const allSelected = Array.from(selects).every(select => select.value !== '');
             if (allSelected) {
               createMapBtn.removeAttribute('disabled');
-              addLayerBtn.removeAttribute('disabled');
-
             } else {
               disableModalBtns()
             }
@@ -325,7 +322,5 @@ function clearErrorModal() {
 
 function disableModalBtns() {
   const createMapBtn = document.querySelector('#create-map');
-  const addLayerBtn = document.querySelector('#add_layer')
-  addLayerBtn.setAttribute('disabled', 'true');
   createMapBtn.setAttribute('disabled', 'true');
 }

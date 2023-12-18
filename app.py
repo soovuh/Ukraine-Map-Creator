@@ -46,7 +46,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.route("/")
+@app.route("/create")
 def index():
     return render_template("index.html")
 
@@ -193,7 +193,10 @@ def delete_map(map_id):
         return jsonify({"message": "Map deleted successfully"})
     else:
         return jsonify({"error": "Map not found"}), 404
-    
+
+@app.route('/')
+def info():
+    return render_template("info.html")
     
 # run app command
 # flask --app app run --debug
