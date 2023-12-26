@@ -27,8 +27,8 @@ class MapCreator:
         )
 
     def add_deepstate_layer(self):
-        url = "https://deepstatemap.live/api/history/1699478008/geojson"
-        raw_data = requests.get(url).json()
+        file = open("static/json/deep.geojson")
+        raw_data = json.load(file)
         geojson_data = {
             "type": "FeatureCollection",
             "features": [

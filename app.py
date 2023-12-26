@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 from flask import render_template, jsonify, redirect, url_for, request
 from flask_login import (
     login_user,
@@ -15,6 +16,7 @@ from flask_admin.contrib.sqla import ModelView
 
 from utils.get_data_from_excel import get_headers_from_excel, get_data_from_excel
 from utils.map_creator import MapCreator
+from utils.generate_unique_code import generate_unique_code
 
 
 from models import db, User, Map
@@ -165,9 +167,13 @@ def get_headers():
 @login_required
 def save():
     id = current_user.id
+    unique_code = generate_unique_code()
+    file_name = f'{id}_{unique_code}.html'
     data = request.get_json()
     html_data = data["html_data"]
-    new_map = Map(user_id=id, html=html_data)
+    with open(f'/static/media/{file_name}', 'w') as file:
+        file.write(html_data)
+    new_map = Map(user_id=id, html=f'/static/media/{file_name}')
     db.session.add(new_map)
     db.session.commit()
     return jsonify({"success": "success"}), 200
@@ -188,6 +194,7 @@ def delete_map(map_id):
     map_data = Map.query.get(map_id)
 
     if map_data:
+        os.remove(f'static/media/{map_data.html}')
         db.session.delete(map_data)
         db.session.commit()
         return jsonify({"message": "Map deleted successfully"})

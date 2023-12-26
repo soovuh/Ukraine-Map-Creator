@@ -47,12 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function downloadHTMLMap(data) {
-        const html = data.html
-        const name = data.name
-        const blob = new Blob([html], { type: 'text/html' });
-        const downloadLink = URL.createObjectURL(blob);
+        const parts = data.html.split('/')
+        const name = parts[parts.length - 1]
         const link = document.createElement('a');
-        link.href = downloadLink;
+        link.href = data.html;
         link.download = `${name}.html`;
         document.body.appendChild(link);
         link.click();
